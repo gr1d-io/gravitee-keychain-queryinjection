@@ -85,7 +85,7 @@ public class KeychainQueryInjectionPolicy {
                 if(elem.getString("method").equals(QUERYINJECTION))
                     apiData = elem;
             }
-            
+
             if(apiData==null) {
                 policyChain.failWith(PolicyResult.failure(HttpStatusCode.NOT_IMPLEMENTED_501, "Method not supported yet. "));
                 return;
