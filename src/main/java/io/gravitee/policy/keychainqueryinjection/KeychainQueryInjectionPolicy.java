@@ -15,6 +15,7 @@
  */
 package io.gravitee.policy.keychainqueryinjection;
 
+import com.google.gson.JsonParser;
 import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.Request;
@@ -24,14 +25,20 @@ import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
 
 import io.gravitee.policy.keychainqueryinjection.configuration.KeychainQueryInjectionPolicyConfiguration;
-import org.json.JSONArray;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.json.JSONObject;
 import org.json.JSONException;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -47,6 +54,9 @@ public class KeychainQueryInjectionPolicy {
     static final String PASS_STRING = "pass";
     static final String METHOD_STRING = "method";
     static final String QUERYINJECTION = "query";
+    static final String[] FILTERED_PROPERTIES = {"appId", "apiId", "gw", "method", "hash"};
+
+    static Map<String, String> params = new HashMap();
 
     /**
      * Policy configuration
@@ -74,26 +84,28 @@ public class KeychainQueryInjectionPolicy {
 
         try
         {
-            JSONArray apiList = new JSONArray(requestKeychain);
-            JSONObject apiData=null;
+            String[] filter = FILTERED_PROPERTIES;
 
-            for(int i=0;i<apiList.length();i++)
-            {
-                JSONObject elem = apiList.getJSONObject(i);
-                System.out.println(i + ">>>" + elem.toString());
+//        System.out.println("JSON: " + requestKeychain);
+            JsonParser p = new JsonParser();
+            buildFilteredList(filter, p.parse(requestKeychain));
+            System.out.println("list size: " + params.size());
+//        System.out.println(params);
 
-                if(elem.getString("method").equals(QUERYINJECTION))
-                    apiData = elem;
-            }
 
-            if(apiData==null) {
+            if(params.size() == 0) {
                 policyChain.failWith(PolicyResult.failure(HttpStatusCode.NOT_IMPLEMENTED_501, "Method not supported yet. "));
                 return;
             }
 
             request.uri().concat("?");
-            request.uri().concat("user=" + apiData.getString(USER_STRING) + "&");
-            request.uri().concat("pass=" + apiData.getString(PASS_STRING));
+
+            for (Map.Entry<String, String> param : params.entrySet())
+            {
+                request.uri().concat(param.getKey() + "=" + param.getValue() + "&");
+                System.out.println(param.getKey() + "=" + param.getValue());
+            }
+
 
         }
         catch (JSONException e)
@@ -120,4 +132,61 @@ public class KeychainQueryInjectionPolicy {
 
         return keychainResponse;
     }
+
+    private static void buildFilteredList(String[] filter, JsonElement jsonElement)
+    {
+
+        if (jsonElement.isJsonArray())
+        {
+            for (JsonElement jsonElement1 : jsonElement.getAsJsonArray())
+            {
+                buildFilteredList(filter, jsonElement1);
+            }
+        }
+        else
+        {
+            Set<Map.Entry<String, JsonElement>> entrySet = jsonElement.getAsJsonObject().entrySet();
+
+            if (jsonElement.isJsonObject()) {
+
+                JsonObject elem =  jsonElement.getAsJsonObject();
+
+                for (Map.Entry<String, JsonElement> entry : entrySet)
+                {
+                    String key = entry.getKey();
+
+                    //if (key1.equals(key)) {
+                    if(elem.get("method").toString().replace("\"", "").equals(QUERYINJECTION))
+                    {
+                        if (!(Arrays.asList(filter).contains(key))) {
+                            params.put(key, entry.getValue().toString().replace("\"", ""));
+                            System.out.println(key + ":" + entry.getValue().toString().replace("\"", ""));
+                        }
+
+                    }
+
+
+                    //buildFilteredList(filter, entry.getValue());
+                }
+
+            }
+            else
+            {
+//                Iterator keys = jsonElement.keys();
+//
+//                while (keys.hasNext()) {
+//                    String key = (String) keys.next();
+//                    map.put(key, fromJson(object.get(key)));
+//                }
+
+                if(!(Arrays.asList(filter).contains(jsonElement.toString()))) {
+                    params.put("single", jsonElement.toString());
+                }
+
+            }
+
+        }
+
+    }
+
 }
