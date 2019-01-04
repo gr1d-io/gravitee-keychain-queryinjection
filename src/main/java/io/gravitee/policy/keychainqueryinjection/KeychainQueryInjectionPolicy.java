@@ -54,7 +54,7 @@ public class KeychainQueryInjectionPolicy {
     static final String PASS_STRING = "pass";
     static final String METHOD_STRING = "method";
     static final String QUERYINJECTION = "query";
-    static final String[] FILTERED_PROPERTIES = {"appId", "apiId", "gw", "method", "hash"};
+    static final String[] FILTERED_PROPERTIES = {"_Gr1d_appId", "_Gr1d_apiId", "_Gr1d_gw", "_Gr1d_method", "_Gr1d_hash"};
 
     static Map<String, String> params = new HashMap();
 
@@ -69,47 +69,48 @@ public class KeychainQueryInjectionPolicy {
 
     @OnRequest
     public void onRequest(Request request, Response response, ExecutionContext executionContext, PolicyChain policyChain) {
-        String keychainResponse = (String)executionContext.getAttribute("keychain");
-
-        String requestKeychain = lookForKeychain(executionContext, request);
-
-        KeychainQueryInjectionPolicy.LOGGER.warn(requestKeychain);
-
-        if (requestKeychain == null || requestKeychain.isEmpty()) {
-            policyChain.failWith(PolicyResult.failure(
-                    HttpStatusCode.FORBIDDEN_403,
-                    "Couldn't find keychain data inside context."));
-            return;
-        }
+        KeychainQueryInjectionPolicy.LOGGER.warn("DEV DEBUG-0:");
 
         try
+
         {
+            String keychainResponse = (String)executionContext.getAttribute("keychain");
+
+            String requestKeychain = lookForKeychain(executionContext, request);
+
+            KeychainQueryInjectionPolicy.LOGGER.warn("DEV DEBUG: REQUEST---> " + requestKeychain);
+
+            KeychainQueryInjectionPolicy.LOGGER.warn("DEV DEBUG: RESPONSE---> " + keychainResponse);
+
+            if (requestKeychain == null || requestKeychain.isEmpty()) {
+                policyChain.failWith(PolicyResult.failure(
+                        HttpStatusCode.FORBIDDEN_403,
+                        "Couldn't find keychain data inside context."));
+                return;
+            }
+
+
             String[] filter = FILTERED_PROPERTIES;
 
-//        System.out.println("JSON: " + requestKeychain);
             JsonParser p = new JsonParser();
-            buildFilteredList(filter, p.parse(requestKeychain));
-            System.out.println("list size: " + params.size());
-//        System.out.println(params);
-
+            buildFilteredList(filter, p.parse(keychainResponse));
+            KeychainQueryInjectionPolicy.LOGGER.warn("DEV DEBUG: " + params.size());
 
             if(params.size() == 0) {
                 policyChain.failWith(PolicyResult.failure(HttpStatusCode.NOT_IMPLEMENTED_501, "Method not supported yet. "));
                 return;
             }
 
-            request.uri().concat("?");
-
             for (Map.Entry<String, String> param : params.entrySet())
             {
-                request.uri().concat(param.getKey() + "=" + param.getValue() + "&");
-                System.out.println(param.getKey() + "=" + param.getValue());
+                request.parameters().add(param.getKey(),param.getValue());
+                KeychainQueryInjectionPolicy.LOGGER.warn("DEV DEBUG: " + param.getKey() + "=" + param.getValue());
             }
 
-
         }
-        catch (JSONException e)
+        catch (Exception e)
         {
+            KeychainQueryInjectionPolicy.LOGGER.warn("DEV DEBUG: " + e.getMessage());
             policyChain.failWith(PolicyResult.failure(HttpStatusCode.FORBIDDEN_403, e.getMessage()));
             return;
         }
@@ -156,11 +157,11 @@ public class KeychainQueryInjectionPolicy {
                     String key = entry.getKey();
 
                     //if (key1.equals(key)) {
-                    if(elem.get("method").toString().replace("\"", "").equals(QUERYINJECTION))
+                    if(elem.get("_Gr1d_method").toString().replace("\"", "").equals(QUERYINJECTION))
                     {
                         if (!(Arrays.asList(filter).contains(key))) {
                             params.put(key, entry.getValue().toString().replace("\"", ""));
-                            System.out.println(key + ":" + entry.getValue().toString().replace("\"", ""));
+                            KeychainQueryInjectionPolicy.LOGGER.warn(key + ":" + entry.getValue().toString().replace("\"", ""));
                         }
 
                     }

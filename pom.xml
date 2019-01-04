@@ -21,11 +21,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.gravitee.policy</groupId>
-    <artifactId>gravitee-policy-keychain-headerinjection</artifactId>
+    <artifactId>gravitee-policy-keychain-queryinjection</artifactId>
     <version>1.0.0</version>
 
-    <name>Gravitee.io APIM - Policy - Keychain - HeaderInjection</name>
-    <description>Description of the ApiKey Gravitee Policy HeaderInjection</description>
+    <name>Gravitee.io APIM - Policy - Keychain - QueryInjection</name>
+    <description>Description of the ApiKey Gravitee Policy QueryInjection</description>
 
     <parent>
         <groupId>io.gravitee</groupId>

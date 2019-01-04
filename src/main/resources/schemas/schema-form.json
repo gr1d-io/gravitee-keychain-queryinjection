@@ -1,5 +1,5 @@
 {
   "type" : "object",
-  "id" : "urn:jsonschema:io:gravitee:policy:keychain:configuration:KeychainHeaderInjectionPolicyConfiguration",
+  "id" : "urn:jsonschema:io:gravitee:policy:keychain:configuration:KeychainQueryInjectionPolicyConfiguration",
   "properties" : {}
 }
