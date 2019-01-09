@@ -23,3 +23,21 @@
 hs_err_pid*
 
 .idea
+
+\.project
+
+\.settings/org\.eclipse\.core\.resources\.prefs
+
+\.settings/org\.eclipse\.jdt\.apt\.core\.prefs
+
+\.settings/org\.eclipse\.jdt\.core\.prefs
+
+\.settings/org\.eclipse\.m2e\.core\.prefs
+
+\.classpath
+
+target/maven-archiver/pom\.properties
+
+target/surefire-reports/io\.gravitee\.policy\.keychainqueryinjection\.KeychainQueryInjectionPolicyTest\.txt
+
+target/surefire-reports/TEST-io\.gravitee\.policy\.keychainqueryinjection\.KeychainQueryInjectionPolicyTest\.xml
