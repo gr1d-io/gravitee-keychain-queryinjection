@@ -21,6 +21,7 @@ import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyChain;
+import io.gravitee.policy.api.PolicyConfiguration;
 import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
 
@@ -63,8 +64,8 @@ public class KeychainQueryInjectionPolicy {
      */
     private final KeychainQueryInjectionPolicyConfiguration keychainQueryInjectionPolicyConfiguration;
 
-    public KeychainQueryInjectionPolicy(KeychainQueryInjectionPolicyConfiguration keychainQueryInjectionPolicyConfiguration) {
-        this.keychainQueryInjectionPolicyConfiguration = keychainQueryInjectionPolicyConfiguration;
+    public KeychainQueryInjectionPolicy(PolicyConfiguration keychainQueryInjectionPolicyConfiguration) {
+        this.keychainQueryInjectionPolicyConfiguration = (KeychainQueryInjectionPolicyConfiguration)keychainQueryInjectionPolicyConfiguration;
     }
 
     @OnRequest

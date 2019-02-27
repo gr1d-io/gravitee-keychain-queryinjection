@@ -22,4 +22,8 @@ import io.gravitee.policy.api.PolicyConfiguration;
  * @author GraviteeSource Team
  */
 public class KeychainQueryInjectionPolicyConfiguration implements PolicyConfiguration {
+    private boolean nullItem;
+
+    public boolean getNullItem () { return this.nullItem; }
+    public void setNullItem (boolean nullItem) { this.nullItem = nullItem; }
 }
